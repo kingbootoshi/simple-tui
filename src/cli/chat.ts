@@ -3,6 +3,7 @@ import readline from 'readline';
 import logger from '../lib/logger';
 import { ChatMessage, chatWithTools } from '../ai/chat';
 import { calculatorTool, runCalculator } from '../tools/calculator';
+import { internetSearchTool, runInternetSearch } from '../tools/internetSearch';
 
 // Silence non-error logs for a clean terminal UI
 logger.level = 'error';
@@ -132,9 +133,10 @@ async function main(): Promise<void> {
         model: state.model,
         temperature: state.temperature,
         maxTokens: state.maxTokens,
-        tools: [calculatorTool],
+        tools: [calculatorTool, internetSearchTool],
         executors: {
           [calculatorTool.function.name]: runCalculator,
+          [internetSearchTool.function.name]: runInternetSearch,
         },
       });
       console.log(`AI> ${content}\n`);
