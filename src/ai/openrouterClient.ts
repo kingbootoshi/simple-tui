@@ -1,5 +1,6 @@
 import 'dotenv/config';
-import OpenAI from 'openai';
+// Use OpenPipe wrapper around the OpenAI SDK to add OpenPipe headers automatically
+import OpenAI from 'openpipe/openai';
 import logger from '../lib/logger';
 
 /**
@@ -13,6 +14,7 @@ import logger from '../lib/logger';
 // Environment variable keys used for configuration
 const OR_API_KEY_ENV = 'OPENROUTER_API_KEY';
 const OR_BASE_URL = process.env.OPENROUTER_BASE_URL || 'https://openrouter.ai/api/v1';
+const OP_API_KEY_ENV = 'OPENPIPE_API_KEY';
 
 let client: OpenAI | null = null;
 
@@ -34,10 +36,15 @@ export function createClient(): OpenAI {
   // Optional attribution headers as per docs
   const httpReferer = process.env.OPENROUTER_HTTP_REFERER; // e.g., https://your.app
   const xTitle = process.env.OPENROUTER_X_TITLE; // e.g., Your App Name
+  const openpipeApiKey = process.env[OP_API_KEY_ENV];
 
   const instance = new OpenAI({
     baseURL: OR_BASE_URL,
     apiKey,
+    // Pass OpenPipe API key so requests include the OpenPipe header automatically
+    ...(openpipeApiKey
+      ? { openpipe: { apiKey: openpipeApiKey } as any }
+      : {}),
     defaultHeaders: {
       ...(!!httpReferer ? { 'HTTP-Referer': httpReferer } : {}),
       ...(!!xTitle ? { 'X-Title': xTitle } : {}),
@@ -60,5 +67,4 @@ export function getClient(): OpenAI {
 }
 
 export default getClient;
-
 
