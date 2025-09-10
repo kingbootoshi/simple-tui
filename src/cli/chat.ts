@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import readline from 'readline';
 import logger from '../lib/logger';
-import chat, { ChatMessage } from '../ai/chat';
+import { ChatMessage, chatWithTools } from '../ai/chat';
+import { calculatorTool, runCalculator } from '../tools/calculator';
 
 // Silence non-error logs for a clean terminal UI
 logger.level = 'error';
@@ -127,13 +128,16 @@ async function main(): Promise<void> {
     // Normal message
     state.messages.push({ role: 'user', content: input });
     try {
-      const reply = await chat(state.messages, {
+      const { content } = await chatWithTools(state.messages, {
         model: state.model,
         temperature: state.temperature,
         maxTokens: state.maxTokens,
+        tools: [calculatorTool],
+        executors: {
+          [calculatorTool.function.name]: runCalculator,
+        },
       });
-      state.messages.push({ role: 'assistant', content: reply });
-      console.log(`AI> ${reply}\n`);
+      console.log(`AI> ${content}\n`);
     } catch (err: any) {
       console.error('Error: failed to get a response. Check your network and OPENROUTER_API_KEY.');
     } finally {
