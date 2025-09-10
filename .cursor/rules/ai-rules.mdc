@@ -1,0 +1,60 @@
+---
+description: Brief guide on importing and using LLM calls via our OpenRouter core.
+globs:
+alwaysApply: true
+---
+
+### LLM usage (OpenRouter core)
+
+Use our AI core to make chat completions through OpenRouter. It centralizes config, logging, and defaults.
+
+- **Entrypoints**: `src/ai/chat.ts` (wrapper), `src/ai/openrouterClient.ts` (client), `src/lib/logger.ts` (logging)
+- **Docs reference**: [OpenRouter Quickstart](https://openrouter.ai/docs/quickstart)
+
+### TL;DR
+1) Import the wrapper and types
+2) Create messages
+3) Call `chat(messages, options?)`
+
+```ts
+import chat, { ChatMessage } from '../ai/chat';
+
+export async function summarize(text: string): Promise<string> {
+  // System prompts guide behavior; add domain constraints here
+  const messages: ChatMessage[] = [
+    { role: 'system', content: 'You are a concise, expert assistant.' },
+    { role: 'user', content: `Summarize in 3 bullets:\n${text}` },
+  ];
+
+  // Optional overrides: model/temperature/tokens
+  return await chat(messages, { model: 'openai/gpt-4o', temperature: 0.3 });
+}
+```
+
+### Options
+- **model**: Override default model from `OPENROUTER_DEFAULT_MODEL`
+- **temperature**: Default `0.7`
+- **maxTokens**: Optional response cap
+
+### Environment
+Set in `.env` (see `.env.example`):
+- **OPENROUTER_API_KEY** (required)
+- OPENROUTER_DEFAULT_MODEL (default: `openai/gpt-4o`)
+- OPENROUTER_HTTP_REFERER, OPENROUTER_X_TITLE (optional attribution)
+- OPENROUTER_BASE_URL (default: `https://openrouter.ai/api/v1`)
+
+### Logging
+- Prefer `logger` from `src/lib/logger.ts` for structured logs.
+```ts
+import logger from '../lib/logger';
+logger.info('Issuing LLM request', { model: 'openai/gpt-4o' });
+```
+
+### Error handling
+Wrap calls in try/catch at integration boundaries; surface actionable messages upstream.
+```ts
+try { /* await chat(messages) */ } catch (err) { /* map/log */ }
+```
+
+### Testing
+- Mock `chat()` in unit tests to avoid network calls; assert prompt shaping and handling of responses.
