@@ -1,27 +1,19 @@
 import 'dotenv/config';
 import logger from './lib/logger';
-import chat, { ChatMessage } from './ai/chat';
+import createApp from './server/app';
 
-/**
- * Demo entrypoint for the AI core module.
- *
- * Why: Provide a minimal example showcasing how to call the chat wrapper.
- * How: Sends a single user message to the default model and logs the response.
- */
-async function main(): Promise<void> {
+const PORT = Number(process.env.PORT ?? 3001);
+
+async function start() {
   try {
-    const messages: ChatMessage[] = [
-      { role: 'system', content: 'You are a helpful assistant.' },
-      { role: 'user', content: 'Say hello from OpenRouter.' },
-    ];
-
-    const reply = await chat(messages);
-    
-    console.log(reply);
+    const app = createApp();
+    app.listen(PORT, () => {
+      logger.info('AI Todo Chat server listening', { port: PORT });
+    });
   } catch (error) {
-    process.exitCode = 1;
+    logger.error('Failed to start server', { error });
+    process.exit(1);
   }
 }
 
-void main();
-
+void start();

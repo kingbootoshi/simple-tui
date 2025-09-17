@@ -5,8 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "dev": "npm run server:dev",
+    "server:dev": "ts-node src/index.ts",
+    "client:dev": "vite --config client/vite.config.ts",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "tsc -p tsconfig.json",
+    "build:client": "vite build --config client/vite.config.ts",
     "start": "node dist/index.js",
     "chat:dev": "ts-node src/cli/chat.ts",
     "chat": "node dist/cli/chat.js"
@@ -15,14 +19,27 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
     "@types/node": "^24.3.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^4.2.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "vite": "^5.4.10"
   },
   "dependencies": {
+    "better-sqlite3": "^8.7.0",
+    "cors": "^2.8.5",
     "dotenv": "^17.2.2",
+    "express": "^5.1.0",
     "openai": "^5.20.1",
     "openpipe": "^0.6.6",
-    "winston": "^3.17.0"
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "winston": "^3.17.0",
+    "zod": "^3.25.76"
   }
 }
